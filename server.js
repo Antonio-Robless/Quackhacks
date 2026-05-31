@@ -12,7 +12,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
  
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY?.trim()
 
 const connection = snowflake.createConnection({
   account: process.env.SNOWFLAKE_ACCOUNT?.trim(),
