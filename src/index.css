@@ -1,0 +1,232 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #EBE1CB;
+  font-family: 'DM Sans', sans-serif;
+}
+
+@keyframes bounce-dot {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+.typing-dot {
+  animation: bounce-dot 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* --- Intro transition v2 --- */
+
+.intro-sky-cool {
+  background: linear-gradient(120deg, #1F2933 0%, #2C2520 60%, #3A2A20 100%);
+}
+
+.intro-sky-warm {
+  background: linear-gradient(120deg, #3A2A20 0%, #8A5A3A 50%, #EBE1CB 100%);
+  opacity: 0;
+  animation: intro-warmth 4500ms ease-in-out 200ms forwards;
+}
+@keyframes intro-warmth {
+  to { opacity: 1; }
+}
+
+.intro-path {
+  top: 68vh;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(74, 27, 12, 0) 0%,
+    rgba(74, 27, 12, 0.35) 25%,
+    rgba(196, 98, 58, 0.85) 80%,
+    rgba(196, 98, 58, 0) 100%
+  );
+  opacity: 0;
+  animation: intro-path-in 900ms ease-out 300ms forwards;
+}
+@keyframes intro-path-in {
+  to { opacity: 1; }
+}
+
+.intro-glow {
+  top: calc(68vh - 110px);
+  right: 12vw;
+  width: 220px;
+  height: 220px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    #F5C4B3 0%,
+    #C4623A 35%,
+    rgba(196, 98, 58, 0) 70%
+  );
+  filter: blur(10px);
+  opacity: 0;
+  transform: scale(0.4);
+  animation: intro-bloom 1400ms ease-out 2400ms forwards;
+}
+@keyframes intro-bloom {
+  0%   { opacity: 0; transform: scale(0.4); }
+  60%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.95; transform: scale(1.05); }
+}
+
+.intro-figure-wrap {
+  bottom: 32vh;
+  left: 0;
+  transform: translateX(-12vw);
+  animation: intro-walk 4500ms cubic-bezier(0.4, 0, 0.2, 1) 200ms forwards;
+}
+@keyframes intro-walk {
+  0%   { transform: translateX(-12vw); }
+  100% { transform: translateX(82vw); }
+}
+
+.intro-figure-grow {
+  color: #1F2933;
+  transform: scale(0.55) rotate(-6deg);
+  transform-origin: 50% 100%;
+  animation:
+    intro-grow 4500ms ease-in-out 200ms forwards,
+    intro-warm 4500ms ease-in-out 200ms forwards;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.25));
+}
+@keyframes intro-grow {
+  0%   { transform: scale(0.55) rotate(-6deg); }
+  60%  { transform: scale(0.82) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes intro-warm {
+  0%   { color: #1F2933; }
+  60%  { color: #3A2418; }
+  100% { color: #4A1B0C; }
+}
+
+.intro-figure-bob {
+  display: block;
+  animation: intro-bob 360ms ease-in-out infinite;
+}
+@keyframes intro-bob {
+  0%, 100% { transform: translateY(-2px); }
+  50%      { transform: translateY(2px); }
+}
+
+/* Limb gait — each limb <g> rotates around its joint */
+.limb { will-change: transform; }
+
+.arm-front, .leg-front {
+  animation: limb-front 720ms ease-in-out infinite;
+}
+.arm-back, .leg-back {
+  animation: limb-back 720ms ease-in-out infinite;
+}
+
+@keyframes limb-front {
+  0%, 100% { transform: rotate(-22deg); }
+  50%      { transform: rotate(22deg); }
+}
+@keyframes limb-back {
+  0%, 100% { transform: rotate(22deg); }
+  50%      { transform: rotate(-22deg); }
+}
+
+/* Arms get tighter swing range */
+.arm-front {
+  animation-name: arm-front;
+}
+.arm-back {
+  animation-name: arm-back;
+}
+@keyframes arm-front {
+  0%, 100% { transform: rotate(-15deg); }
+  50%      { transform: rotate(15deg); }
+}
+@keyframes arm-back {
+  0%, 100% { transform: rotate(15deg); }
+  50%      { transform: rotate(-15deg); }
+}
+
+/* Graduation gown — fades in at ~1/3 across */
+.grad-gown {
+  opacity: 0;
+  transform: translateY(2px);
+  animation: gown-on 1300ms ease-out 1800ms forwards;
+  transform-box: view-box;
+}
+@keyframes gown-on {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Graduation cap — drops in with slight overshoot at ~2/3 across */
+.grad-cap {
+  opacity: 0;
+  transform: translateY(-30px);
+  animation: cap-drop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 3200ms forwards;
+  transform-box: view-box;
+}
+@keyframes cap-drop {
+  0%   { opacity: 0; transform: translateY(-30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.intro-tagline {
+  position: absolute;
+  top: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 3.375rem;
+  letter-spacing: 0.02em;
+  color: #FAF7F2;
+  white-space: nowrap;
+  opacity: 0;
+  animation: intro-tagline-in 700ms ease-out 3800ms forwards;
+}
+@keyframes intro-tagline-in {
+  to { opacity: 1; }
+}
+
+/* --- Chat boot stagger --- */
+
+@keyframes chat-fade-up {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.chat-boot-header    { animation: chat-fade-up 280ms ease-out 100ms both; }
+.chat-boot-input     { animation: chat-fade-up 280ms ease-out 300ms both; }
+.chat-boot-greeting  { animation: chat-fade-up 320ms ease-out 600ms both; }
+.chat-boot-community { animation: chat-fade-up 320ms ease-out 900ms both; }
+.chat-boot-chip      { animation: chat-fade-up 200ms ease-out 1300ms both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-boot-header,
+  .chat-boot-input,
+  .chat-boot-greeting,
+  .chat-boot-community,
+  .chat-boot-chip { animation: none; }
+}
+
+/* --- Insights boot stagger --- */
+
+.insights-boot-header   { animation: chat-fade-up 320ms ease-out 100ms both; }
+.insights-boot-total    { animation: chat-fade-up 320ms ease-out 300ms both; }
+.insights-boot-narr     { animation: chat-fade-up 320ms ease-out 500ms both; }
+.insights-boot-quick    { animation: chat-fade-up 320ms ease-out 700ms both; }
+.insights-boot-category { animation: chat-fade-up 320ms ease-out 900ms both; }
+.insights-boot-year     { animation: chat-fade-up 320ms ease-out 1100ms both; }
+.insights-boot-footer   { animation: chat-fade-up 320ms ease-out 1300ms both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .insights-boot-header,
+  .insights-boot-total,
+  .insights-boot-narr,
+  .insights-boot-quick,
+  .insights-boot-category,
+  .insights-boot-year,
+  .insights-boot-footer { animation: none; }
+}
