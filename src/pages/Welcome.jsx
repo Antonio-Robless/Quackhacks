@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import IntroTransition from '../components/IntroTransition'
+import { useSkyStage } from '../lib/skyStage'
 import { GradStudentI } from '../components/icons'
 
 export default function Welcome() {
   const navigate = useNavigate()
+  const { setStage } = useSkyStage()
   const [showIntro, setShowIntro] = useState(
     () => typeof window !== 'undefined' && !sessionStorage.getItem('fil_intro_seen')
   )
   const [phase, setPhase] = useState('out')
 
   useEffect(() => {
+    setStage('sunrise')
     const t = setTimeout(() => setPhase('in'), 20)
     return () => clearTimeout(t)
   }, [])
@@ -28,7 +31,7 @@ export default function Welcome() {
   return (
     <>
       {showIntro && <IntroTransition onComplete={handleIntroComplete} />}
-      <div className="min-h-screen bg-beige-100 flex flex-col">
+      <div className="min-h-screen flex flex-col">
         <div
           className={`flex-1 flex flex-col transition-all duration-[240ms] ease-out ${
             phase === 'in'

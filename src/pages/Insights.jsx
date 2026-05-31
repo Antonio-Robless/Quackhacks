@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StudentProfile } from '../lib/studentProfile'
+import { useSkyStage } from '../lib/skyStage'
 import {
   IconMoney, IconChart, IconBriefcase, IconBook, IconBuilding, IconCompass, IconInsights, IconSpark,
 } from '../components/icons'
@@ -90,6 +91,7 @@ function generateNarrative(categoryData, yearData) {
 
 export default function Insights() {
   const navigate = useNavigate()
+  const { setStage } = useSkyStage()
   const college = StudentProfile.getCollege()
   const [categoryData, setCategoryData] = useState([])
   const [yearData, setYearData] = useState([])
@@ -99,6 +101,10 @@ export default function Insights() {
   const [openSection, setOpenSection] = useState(null)
   const [campusLinks, setCampusLinks] = useState(null)
   const [campusLoading, setCampusLoading] = useState(true)
+
+  useEffect(() => {
+    setStage('insights')
+  }, [])
 
   useEffect(() => {
     fetch('/api/insights')
@@ -137,7 +143,7 @@ export default function Insights() {
   ]
 
   return (
-    <div className="min-h-screen bg-beige-100 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Header */}
       <div className="insights-boot-header bg-cream border-b border-beige-200 px-6 py-4 flex items-center gap-3">
         <button

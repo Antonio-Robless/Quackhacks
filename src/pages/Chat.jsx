@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { sendToGemini } from '../api/gemini'
 import { StudentProfile } from '../lib/studentProfile'
+import { useSkyStage } from '../lib/skyStage'
 import { IconMentor, IconInsights, IconMoney, IconBook, IconBriefcase, GradStudentI } from '../components/icons'
 
 const SUGGESTIONS = [
@@ -93,6 +94,7 @@ function SearchIndicator({ queries, sources }) {
 
 export default function Chat() {
   const navigate = useNavigate()
+  const { setStage } = useSkyStage()
   const year = StudentProfile.getYear()
   const topics = StudentProfile.getTopics()
   const college = StudentProfile.getCollege()
@@ -113,6 +115,10 @@ export default function Chat() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(true)
+
+  useEffect(() => {
+    setStage('chat')
+  }, [])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -150,7 +156,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-beige-100">
+    <div className="flex flex-col h-screen">
       {/* Header */}
       <div className="chat-boot-header bg-beige-50 border-b border-beige-200 px-6 py-4 flex items-center gap-3">
         <button

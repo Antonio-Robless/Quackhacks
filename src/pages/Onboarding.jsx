@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StudentProfile } from '../lib/studentProfile'
+import { useSkyStage } from '../lib/skyStage'
 import {
   YearMinnow, YearFingerling, YearFish, YearPredator, YearShark,
   IconMoney, IconChart, IconBriefcase, IconBuilding, IconBook, IconCompass,
+  GradStudentI,
 } from '../components/icons'
 
 const YEARS = [
@@ -25,6 +27,7 @@ const TOPICS = [
 
 export default function Onboarding() {
   const navigate = useNavigate()
+  const { setStage } = useSkyStage()
   const [step, setStep] = useState(1)
   const [phase, setPhase] = useState('out')
   const [selectedYear, setSelectedYear] = useState('')
@@ -35,6 +38,10 @@ export default function Onboarding() {
     const t = setTimeout(() => setPhase('in'), 20)
     return () => clearTimeout(t)
   }, [])
+
+  useEffect(() => {
+    setStage({ 1: 'midday', 2: 'sunset', 3: 'night' }[step] || 'midday')
+  }, [step])
 
   function transitionToStep(next) {
     setPhase('out')
@@ -63,8 +70,14 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-beige-100 flex items-center justify-center px-4 py-12">
-      <div className="bg-cream rounded-2xl border border-beige-200 p-10 w-full max-w-md shadow-sm">
+    <div className="min-h-screen flex flex-col">
+      <nav className="px-8 py-5 flex items-center">
+        <span className="font-serif text-4xl font-semibold text-maroon-900">
+          F<GradStudentI />rstInL<GradStudentI />ne
+        </span>
+      </nav>
+      <div className="flex-1 flex items-center justify-center px-4 pb-12">
+        <div className="bg-cream rounded-2xl border border-beige-200 p-10 w-full max-w-md shadow-sm">
 
         {/* Step dots */}
         <div className="flex gap-2 mb-8">
@@ -163,6 +176,7 @@ export default function Onboarding() {
             </div>
           </>
         )}
+        </div>
         </div>
       </div>
     </div>
