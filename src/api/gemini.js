@@ -1,7 +1,5 @@
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
-
 export async function sendToGemini(userMessage, history, year, topics) {
-  const res = await fetch(`${SERVER_URL}/api/chat`, {
+  const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message: userMessage, history, year, topics })

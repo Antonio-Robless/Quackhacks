@@ -4,8 +4,6 @@ import {
   IconMoney, IconChart, IconBriefcase, IconBook, IconBuilding, IconCompass, IconInsights, IconSpark,
 } from '../components/icons'
 
-const SERVER_URL = 'http://localhost:3001'
-
 const QUICK_LINKS = [
   {
     Icon: IconMoney,
@@ -113,7 +111,7 @@ export default function Insights() {
   const [openSection, setOpenSection] = useState(null)
 
   useEffect(() => {
-    fetch(`${SERVER_URL}/api/insights`)
+    fetch('/api/insights')
       .then(r => r.json())
       .then(categories => {
         setCategoryData(categories)
@@ -121,7 +119,7 @@ export default function Insights() {
       })
       .catch(err => setError(err.message))
 
-    fetch(`${SERVER_URL}/api/insights/years`)
+    fetch('/api/insights/years')
       .then(r => r.json())
       .then(years => setYearData(years))
       .catch(err => console.error('Years fetch failed:', err))
