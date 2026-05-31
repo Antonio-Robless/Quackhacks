@@ -15,9 +15,9 @@ app.use(express.json())
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 
 const connection = snowflake.createConnection({
-  account: process.env.SNOWFLAKE_ACCOUNT,
-  username: process.env.SNOWFLAKE_USER,
-  password: process.env.SNOWFLAKE_PASSWORD,
+  account: process.env.SNOWFLAKE_ACCOUNT?.trim(),
+  username: process.env.SNOWFLAKE_USER?.trim(),
+  password: process.env.SNOWFLAKE_PASSWORD?.trim(),
   database: 'FIRSTINLINE',
   schema: 'PUBLIC',
   warehouse: 'COMPUTE_WH'
