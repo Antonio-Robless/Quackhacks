@@ -29,6 +29,7 @@ export default function Onboarding() {
   const [phase, setPhase] = useState('out')
   const [selectedYear, setSelectedYear] = useState('')
   const [selectedTopics, setSelectedTopics] = useState([])
+  const [college, setCollege] = useState('')
 
   useEffect(() => {
     const t = setTimeout(() => setPhase('in'), 20)
@@ -56,7 +57,7 @@ export default function Onboarding() {
   function handleStart() {
     setPhase('out')
     setTimeout(() => {
-      StudentProfile.save(selectedYear, selectedTopics)
+      StudentProfile.save(selectedYear, selectedTopics, college)
       navigate('/chat')
     }, 240)
   }
@@ -69,6 +70,7 @@ export default function Onboarding() {
         <div className="flex gap-2 mb-8">
           <div className={`h-1 flex-1 rounded-full transition-colors ${step >= 1 ? 'bg-brand-400' : 'bg-beige-200'}`} />
           <div className={`h-1 flex-1 rounded-full transition-colors ${step >= 2 ? 'bg-brand-400' : 'bg-beige-200'}`} />
+          <div className={`h-1 flex-1 rounded-full transition-colors ${step >= 3 ? 'bg-brand-400' : 'bg-beige-200'}`} />
         </div>
 
         <div
@@ -130,6 +132,27 @@ export default function Onboarding() {
                 </button>
               ))}
             </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => transitionToStep(3)}
+                className="bg-brand-400 hover:bg-brand-600 text-cream font-medium px-6 py-3 rounded-full text-sm transition-colors"
+              >
+                Let's go →
+              </button>
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <h2 className="font-serif text-2xl font-semibold text-maroon-900 mb-1">What college do you attend?</h2>
+            <p className="text-sm text-beige-400 mb-6">This helps me give you real resources specific to your school.</p>
+            <input
+              type="text"
+              value={college}
+              onChange={(e) => setCollege(e.target.value)}
+              className="w-full border border-beige-200 bg-beige-50 text-maroon-700 focus:border-brand-400 outline-none rounded-xl px-4 py-3.5 text-sm"
+            />
             <div className="flex justify-end mt-6">
               <button
                 onClick={handleStart}

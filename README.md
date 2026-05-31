@@ -33,7 +33,7 @@ Deploy the `dist/` folder to Digital Ocean App Platform.
 ## Tech Stack
 - React + Vite
 - Tailwind CSS
-- Google Gemini 2.0 Flash
+- Google Gemini 2.5 Flash
 - React Router
 
 ## Tracks

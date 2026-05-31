@@ -95,6 +95,7 @@ export default function Chat() {
   const navigate = useNavigate()
   const year = StudentProfile.getYear()
   const topics = StudentProfile.getTopics()
+  const college = StudentProfile.getCollege()
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -125,7 +126,7 @@ export default function Chat() {
     setMessages(prev => [...prev, { role: 'user', text: msg }])
     setLoading(true)
     try {
-      const { reply, usedSearch, searchQueries, sources } = await sendToGemini(msg, history, year, topics)
+      const { reply, usedSearch, searchQueries, sources } = await sendToGemini(msg, history, year, topics, college)
       setHistory(prev => [...prev, { role: 'user', text: msg }, { role: 'model', text: reply }])
       setMessages(prev => [...prev, { role: 'ai', text: reply, usedSearch, searchQueries, sources }])
     } catch (e) {

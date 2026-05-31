@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { StudentProfile } from '../lib/studentProfile'
 import {
   IconMoney, IconChart, IconBriefcase, IconBook, IconBuilding, IconCompass, IconInsights, IconSpark,
 } from '../components/icons'
@@ -31,20 +32,6 @@ const QUICK_LINKS = [
       { label: 'Consumer Finance (CFPB)', url: 'https://www.consumerfinance.gov/consumer-tools/student-loans/', desc: 'Free financial education tools' },
       { label: 'Student Loan Simulator', url: 'https://studentaid.gov/loan-simulator/', desc: 'See your repayment options' },
       { label: 'NerdWallet Budgeting', url: 'https://www.nerdwallet.com/article/finance/budgeting-for-college-students', desc: 'Budgeting basics for college students' },
-    ]
-  },
-  {
-    Icon: IconBuilding,
-    label: 'UO Campus Resources',
-    links: [
-      { label: 'UO Financial Aid Office', url: 'https://financialaid.uoregon.edu', desc: 'Your main financial aid contact' },
-      { label: 'UO First-Gen Programs', url: 'https://firstgen.uoregon.edu', desc: 'Programs built specifically for you' },
-      { label: 'UO Counseling Services', url: 'https://counseling.uoregon.edu', desc: 'Free mental health support on campus' },
-      { label: 'UO Food Pantry (FOOD for Lane County)', url: 'https://dos.uoregon.edu/food', desc: 'Free food resources for UO students' },
-      { label: 'UO Career Center', url: 'https://career.uoregon.edu', desc: 'Internships, jobs, resume help' },
-      { label: 'UO Tutoring (TLC)', url: 'https://tlc.uoregon.edu', desc: 'Free tutoring and academic support' },
-      { label: 'UO Emergency Funds', url: 'https://dos.uoregon.edu/emergency-fund', desc: 'Financial emergency assistance' },
-      { label: 'Handshake (UO Jobs)', url: 'https://uoregon.joinhandshake.com', desc: 'Find internships & jobs as a UO student' },
     ]
   },
   {
@@ -103,12 +90,15 @@ function generateNarrative(categoryData, yearData) {
 
 export default function Insights() {
   const navigate = useNavigate()
+  const college = StudentProfile.getCollege()
   const [categoryData, setCategoryData] = useState([])
   const [yearData, setYearData] = useState([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [openSection, setOpenSection] = useState(null)
+  const [campusLinks, setCampusLinks] = useState(null)
+  const [campusLoading, setCampusLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/insights')
@@ -126,8 +116,25 @@ export default function Insights() {
       .finally(() => setLoading(false))
   }, [])
 
+  useEffect(() => {
+    fetch(`/api/campus-resources?college=${encodeURIComponent(college)}`)
+      .then(r => {
+        if (!r.ok) throw new Error('Failed to load campus resources')
+        return r.json()
+      })
+      .then(links => setCampusLinks(Array.isArray(links) ? links : null))
+      .catch(() => setCampusLinks(null))
+      .finally(() => setCampusLoading(false))
+  }, [])
+
   const maxCount = categoryData.length > 0 ? Math.max(...categoryData.map(r => Number(r.COUNT))) : 1
   const narrative = generateNarrative(categoryData, yearData)
+
+  const quickLinks = [
+    ...QUICK_LINKS.slice(0, 3),
+    { Icon: IconBuilding, label: `${college} Resources`, links: campusLinks || [], campus: true },
+    ...QUICK_LINKS.slice(3),
+  ]
 
   return (
     <div className="min-h-screen bg-beige-100 flex flex-col">
@@ -153,10 +160,10 @@ export default function Insights() {
         {/* Quick Links Section */}
         <div className="insights-boot-quick bg-cream border border-beige-200 rounded-2xl p-6 shadow-sm">
           <h2 className="font-serif text-base font-semibold text-maroon-900 mb-1">Quick Resources</h2>
-          <p className="text-xs text-beige-400 mb-5">Everything you need, in one place — including UO-specific links.</p>
+          <p className="text-xs text-beige-400 mb-5">Everything you need, in one place — including resources specific to your school.</p>
 
           <div className="flex flex-col gap-3">
-            {QUICK_LINKS.map(({ Icon, label, links }) => (
+            {quickLinks.map(({ Icon, label, links, campus }) => (
               <div key={label} className="border border-beige-200 rounded-xl overflow-hidden">
                 <button
                   onClick={() => setOpenSection(openSection === label ? null : label)}
@@ -171,6 +178,12 @@ export default function Insights() {
 
                 {openSection === label && (
                   <div className="flex flex-col divide-y divide-beige-100">
+                    {campus && campusLoading && (
+                      <p className="px-4 py-3 text-sm text-beige-400">Finding your school's resources...</p>
+                    )}
+                    {campus && !campusLoading && campusLinks === null && (
+                      <p className="px-4 py-3 text-sm text-beige-400">We couldn't find resources for your school. Ask your mentor for help.</p>
+                    )}
                     {links.map((link) => (
                       <a
                         key={link.url}

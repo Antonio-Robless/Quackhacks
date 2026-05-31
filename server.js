@@ -48,13 +48,15 @@ function detectCategory(message) {
   return 'General'
 }
  
-function buildSystemPrompt(year, topics) {
+function buildSystemPrompt(year, topics, college) {
   return `You are FirstInLine — an AI guide built specifically for first-generation college students. You were created by a first-gen student who had to figure everything out alone, and your entire purpose is to be the older sibling they never had.
  
 WHO YOU'RE TALKING TO:
 First-generation college students — meaning their parents did not attend college. They are navigating systems that everyone around them seems to already understand. They may feel overwhelmed, behind, or like they're missing something obvious. They are not. The system just wasn't built to explain itself to them.
  
 The student is a ${year} who is most concerned about: ${topics && topics.length > 0 ? topics.join(', ') : 'general college guidance'}.
+
+The student attends: ${college}. When recommending campus resources, use Gemini's web search to find real, specific resources from that school — actual office names, locations, phone numbers, and websites. Never give generic advice when school-specific info is available.
  
 HOW YOU SPEAK:
 - Warm, direct, and human. Like a trusted older sibling or mentor who has been through it.
@@ -94,7 +96,7 @@ WHAT YOU NEVER DO:
  
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, history, year, topics } = req.body
+    const { message, history, year, topics, college } = req.body
     const messages = (history || []).map(m => ({
       role: m.role,
       parts: [{ text: m.text }]
@@ -107,7 +109,7 @@ app.post('/api/chat', async (req, res) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: buildSystemPrompt(year, topics) }] },
+          system_instruction: { parts: [{ text: buildSystemPrompt(year, topics, college) }] },
           contents: messages,
           tools: [{ google_search: {} }]
         })
@@ -161,6 +163,63 @@ app.get('/api/insights/years', (req, res) => {
       res.json(rows)
     }
   })
+})
+
+app.get('/api/campus-resources', async (req, res) => {
+  try {
+    const college = (req.query.college || '').trim()
+    const prompt = `Search the web and find the real, official URLs for these offices at ${college}: financial aid office, tutoring center, counseling or mental health services, food pantry or basic needs program, career center, first-generation student programs, and emergency funds. Return ONLY a valid JSON array where each item has: label (short office name), url (the real URL you found via search), desc (one sentence). Only include resources where you found a real URL via search — do not guess or make up any URLs.`
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          tools: [{ google_search: {} }]
+        })
+      }
+    )
+
+    const data = await response.json()
+    if (data.error) throw new Error(data.error.message)
+
+    const text = data.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || ''
+    const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim()
+    const start = cleaned.indexOf('[')
+    const end = cleaned.lastIndexOf(']')
+
+    let parsed
+    try {
+      parsed = JSON.parse(cleaned.slice(start, end + 1))
+    } catch {
+      parsed = null
+    }
+
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return res.status(500).json({ error: 'Could not find resources' })
+    }
+
+    const checks = await Promise.all(parsed.map(async (item) => {
+      try {
+        const r = await fetch(item.url, { method: 'HEAD', signal: AbortSignal.timeout(5000) })
+        return r.status >= 200 && r.status < 400 ? item : null
+      } catch {
+        return null
+      }
+    }))
+    const verified = checks.filter(Boolean)
+
+    if (verified.length === 0) {
+      return res.status(500).json({ error: 'No verified resources found' })
+    }
+
+    res.json(verified)
+  } catch (err) {
+    console.error('Campus resources error:', err.message)
+    res.status(500).json({ error: 'Could not find resources' })
+  }
 })
 
 app.use(express.static(path.join(__dirname, 'dist')));
